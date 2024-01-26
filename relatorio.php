@@ -328,7 +328,8 @@
                     <div class="col">
                         <label for="fileInput" class="form-label fw-bold">Selecione as fotos de antes</label>
                         <br>
-                        <input class="w-100" ref='file' id="fileInput" type="file" onchange="fileSelectedHandler(event, 'before')" />
+                        <input class="w-100" ref='file' id="fileInput" type="file"
+                            onchange="fileSelectedHandler(event, 'before')" />
                     </div>
                 </div>
 
@@ -344,7 +345,8 @@
                     <div class="col">
                         <label for="fileInput2" class="form-label fw-bold">Selecione as fotos de depois</label>
                         <br>
-                        <input class="w-100" ref='file' id="fileInput2" type="file" onchange="fileSelectedHandler(event, 'after')" />
+                        <input class="w-100" ref='file' id="fileInput2" type="file"
+                            onchange="fileSelectedHandler(event, 'after')" />
                     </div>
                 </div>
 
@@ -357,8 +359,7 @@
                 <div class="row mt-4">
                     <div class="col">
                         <label for="observacao" class="form-label fw-bold">Observação</label>
-                        <input type="text" class="form-control" id="observacao"
-                            name="observacao">
+                        <input type="text" class="form-control" id="observacao" name="observacao">
                     </div>
                 </div>
 

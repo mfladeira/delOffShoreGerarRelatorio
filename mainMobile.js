@@ -80,6 +80,22 @@ function addFooter(doc) {
 	doc.text("(22) 30513548 / (22) 998884700 Site. www.deloffshore.com", pageWidth / 2, 285, { align: "center" });
 }
 
+function addNewPage() {
+	doc.addPage();
+	doc.setFont(undefined, "bold");
+	doc.setFontSize(13);
+	doc.text("SERVIÇO DE CALDEIRARIA", 70, 23);
+	doc.setFontSize(9);
+	doc.text("CNPJ: 34.050.439/0001-40", 70, 30);
+	doc.text("RUA ITACOLOMI 247-MACAÉ-RJ", 70, 37);
+	doc.addImage("./assets/logo.jpg", "JPEG", 10, 13, 45, 25);
+	doc.addImage("./assets/iso9001.png", "JPEG", 160, 18, 24, 22);
+	doc.rect(13, 44, 180, 0.1, "F"); // Line
+
+	addFooter(doc);
+	finalY = initialYPage;
+}
+
 function printSome() {
 	const nomeCliente = document.getElementById("nomeCliente").value;
 	const nomeEmbarcacao = document.getElementById("nomeEmbarcacao").value;
@@ -109,10 +125,10 @@ function printSome() {
 	doc.text("RUA ITACOLOMI 247-MACAÉ-RJ", 70, 37);
 	doc.addImage("./assets/logo.jpg", "JPEG", 10, 13, 45, 25);
 	doc.addImage("./assets/iso9001.png", "JPEG", 160, 18, 24, 22);
+	addFooter(doc);
 	doc.rect(13, 44, 180, 0.1, "F"); // Line
 
 	// Rodapé
-	addFooter(doc);
 
 	// FONT BOLD
 	doc.setFont(undefined, "bold");
@@ -128,7 +144,7 @@ function printSome() {
 	doc.text("Data início:", 14, 94);
 	doc.text("Data término:", 130, 94);
 	doc.text("Hora início:", 14, 101);
-	doc.text("Hora início:", 130, 101);
+	doc.text("Hora Término:", 130, 101);
 	doc.text("Material utilizado:", 14, 108);
 
 	// FONT NORMAl
@@ -143,7 +159,7 @@ function printSome() {
 	doc.text(dataInicioFormatoCorreto, 36, 94);
 	doc.text(dataTerminoFormatoCorreto, 156, 94);
 	doc.text(horaInicio, 36, 101);
-	doc.text(horaTermino, 152, 101);
+	doc.text(horaTermino, 157, 101);
 
 	doc.text(material, 14, 113, {
 		align: "left",
@@ -235,8 +251,13 @@ function printSome() {
 	}).h;
 	finalY = finalY + 10 + descriptionHeight;
 
+	let nextPage = false;
 	if (imgsBefore.length !== 0 && imgsAfter.length !== 0) {
 		// FONT BOLD
+		if (finalY + 10 + 50 >= finalLimitY) {
+			addNewPage();
+		}
+
 		doc.setFont(undefined, "bold");
 		doc.text("Fotos de antes:", 14, finalY + 5);
 		imgsBefore.forEach((item, index) => {
@@ -244,20 +265,8 @@ function printSome() {
 		});
 
 		if (finalY + 10 + 2 * 50 >= finalLimitY) {
-			doc.addPage();
-
-			doc.setFont(undefined, "bold");
-			doc.setFontSize(13);
-			doc.text("SERVIÇO DE CALDEIRARIA", 70, 23);
-			doc.setFontSize(9);
-			doc.text("CNPJ: 34.050.439/0001-40", 70, 30);
-			doc.text("RUA ITACOLOMI 247-MACAÉ-RJ", 70, 37);
-			doc.addImage("./assets/logo.jpg", "JPEG", 10, 13, 45, 25);
-			doc.addImage("./assets/iso9001.png", "JPEG", 160, 18, 24, 22);
-			doc.rect(13, 44, 180, 0.1, "F"); // Line
-
-			addFooter(doc);
-			finalY = initialYPage;
+			nextPage = true;
+			addNewPage();
 		} else {
 			finalY = finalY + 10 + 55;
 		}
@@ -268,20 +277,56 @@ function printSome() {
 		imgsAfter.forEach((item, index) => {
 			doc.addImage(item, "JPEG", 14 + index * 62, finalY + 5, 44 + 15, 45);
 		});
-		finalY = finalY + 55;
+
+		if (nextPage === false) {
+			addNewPage();
+		}
 	}
 
 	doc.setFont(undefined, "bold");
+	doc.setFontSize(11);
+
+	if (nextPage === true) {
+		finalY = initialYPage + 65;
+	}
+
+	if (finalY + 60 >= finalLimitY) {
+		addNewPage();
+	}
+
+	doc.setFontSize(11);
 	doc.text("Observação:", 14, finalY + 5);
+
+	doc.setFont(undefined, "normal");
+
+	doc.text(observacao, 14, finalY + 10, {
+		align: "left",
+		maxWidth: 180,
+		lineHeightFactor: 1.3,
+	});
+	const observationHeight = doc.getTextDimensions(observacao, {
+		align: "left",
+		maxWidth: 180,
+		lineHeightFactor: 1.3,
+		fontSize: 12,
+	}).h;
+
+	finalY = finalY + 5 + observationHeight;
+
+	if (finalY + 60 >= finalLimitY) {
+		addNewPage();
+		doc.setFontSize(11);
+	}
+	
+	doc.setFont(undefined, "bold");
+
 	doc.text("Assinatura do responsável da embarcação:", 14, finalY + 15);
 	doc.text("Assinatura do responsável da equipe: ", 14, finalY + 30);
 	doc.text("Assinatura da prestadora de serviço: ", 14, finalY + 45);
 
-	doc.setFont(undefined, "normal");
-	doc.text(observacao, 38, finalY + 5);
 	doc.text(nomeResponsavelEmbarcacao ?? "", 85, finalY + 30);
 
-	doc.save("a4.pdf");
+	doc.save(`Relatório${Math.ceil(Math.random() * 10000000)}.pdf`);
 
 	location.reload();
 }
