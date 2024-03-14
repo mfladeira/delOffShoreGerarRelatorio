@@ -280,34 +280,31 @@ function printSome() {
 
 	let nextPage = false;
 	if (imgsBefore.length !== 0 && imgsAfter.length !== 0) {
-		// FONT BOLD
-		if (finalY + 10 + 50 >= finalLimitY) {
-			addNewPage();
-		}
-
+		addNewPage();
+		finalY = initialYPage - 8;
+		
+		doc.setFontSize(11);
 		doc.setFont(undefined, "bold");
 		doc.text("Fotos de antes:", 14, finalY + 5);
 		imgsBefore.forEach((item, index) => {
-			doc.addImage(item, "JPEG", 14 + index * 62, finalY + 10, 44 + 15, 45);
+			doc.addImage(item, "JPEG", 30, finalY + 10 + (index * 54), 140, 50);
 		});
 
-		if (finalY + 10 + 2 * 50 >= finalLimitY) {
+		if (imgsBefore.length > 3 || ((imgsAfter.length + imgsBefore.length) > 4)) {
 			nextPage = true;
 			addNewPage();
 		} else {
-			finalY = finalY + 10 + 55;
+			finalY = finalY + (imgsBefore.length * 52) + 15;
 		}
 
 		doc.setFont(undefined, "bold");
 		doc.setFontSize(11);
-		doc.text("Fotos de depois:", 14, finalY);
+		doc.text("Fotos de depois:", 14, finalY + 2);
 		imgsAfter.forEach((item, index) => {
-			doc.addImage(item, "JPEG", 14 + index * 62, finalY + 5, 44 + 15, 45);
+			doc.addImage(item, "JPEG", 30, finalY + 6 + (index * 54), 140, 50);
 		});
 
-		if (nextPage === false) {
-			addNewPage();
-		}
+		addNewPage();
 	}
 
 	doc.setFont(undefined, "bold");
