@@ -23,6 +23,25 @@ const initialYPage = 52;
 const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
 let finalY = 0;
 
+function updateLogisticaOrPessoal(event, type) {
+	event.preventDefault();
+	if (type === "logisticaPessoal") {
+		if (event.srcElement.checked) {
+			document.getElementById("teveLogisticaPessoal").textContent = "SIM";
+		} else {
+			document.getElementById("teveLogisticaPessoal").textContent = "NÃO";
+		}
+	}
+
+	if (type === "logisticaMaterial") {
+		if (event.srcElement.checked) {
+			document.getElementById("teveLogisticaMaterial").textContent = "SIM";
+		} else {
+			document.getElementById("teveLogisticaMaterial").textContent = "NÃO";
+		}
+	}
+}
+
 function updateTeamProfissions(e, typeOfProfission, numberToAdd) {
 	e.preventDefault();
 	teamProfissions[typeOfProfission] = teamProfissions[typeOfProfission] + numberToAdd;
@@ -97,6 +116,8 @@ function addNewPage() {
 }
 
 function printSome() {
+	const logisticaPessoal = document.getElementById("logisticaPessoal").checked;
+	const logisticaMaterial = document.getElementById("logisticaMaterial").checked;
 	const nomeCliente = document.getElementById("nomeCliente").value;
 	const nomeEmbarcacao = document.getElementById("nomeEmbarcacao").value;
 	const emailResponsavelEmbarcacao = document.getElementById("emailResponsavelEmbarcacao").value;
@@ -145,7 +166,11 @@ function printSome() {
 	doc.text("Data término:", 130, 94);
 	doc.text("Hora início:", 14, 101);
 	doc.text("Hora Término:", 130, 101);
-	doc.text("Material utilizado:", 14, 108);
+
+	doc.text("Logística de material:", 14, 108);
+	doc.text("Logística de pessoal:", 130, 108);
+
+	doc.text("Material utilizado:", 14, 115);
 
 	// FONT NORMAl
 	doc.setFont(undefined, "normal");
@@ -160,8 +185,10 @@ function printSome() {
 	doc.text(dataTerminoFormatoCorreto, 156, 94);
 	doc.text(horaInicio, 36, 101);
 	doc.text(horaTermino, 157, 101);
+	doc.text(logisticaMaterial === true ? "Sim" : "Não", 55, 108);
+	doc.text(logisticaPessoal === true ? "Sim" : "Não", 171, 108);
 
-	doc.text(material, 14, 113, {
+	doc.text(material, 14, 120, {
 		align: "left",
 		maxWidth: 180,
 		lineHeightFactor: 1.3,
@@ -173,7 +200,7 @@ function printSome() {
 		lineHeightFactor: 1.3,
 		fontSize: 12,
 	}).h;
-	finalY = 113 + materialHeight;
+	finalY = 118 + materialHeight;
 
 	//---------------------------------------------------------------------------------------
 	// FONT BOLD
@@ -317,7 +344,7 @@ function printSome() {
 		addNewPage();
 		doc.setFontSize(11);
 	}
-	
+
 	doc.setFont(undefined, "bold");
 
 	doc.text("Assinatura do responsável da embarcação:", 14, finalY + 15);
