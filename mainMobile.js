@@ -21,6 +21,7 @@ let doc = new jsPDF();
 const finalLimitY = 265;
 const initialYPage = 52;
 const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
+
 let finalY = 0;
 
 function updateLogisticaOrPessoal(event, type) {
@@ -68,15 +69,19 @@ function fileSelectedHandler(event, afterOrBefore) {
 			var img = new Image();
 			img.src = reader.result;
 			img.style = "width:100%; margin-top: 15px; max-height: 22rem;";
-			if (afterOrBefore === "before") {
-				imgsBefore.push(reader.result);
-				fileDisplayAreaBefore.appendChild(img);
-			} else if (afterOrBefore === "after") {
-				imgsAfter.push(reader.result);
-				fileDisplayAreaAfter.appendChild(img);
-			}
+
+			img.onload = function () {
+				if (afterOrBefore === "before") {
+					imgsBefore.push({ src: reader.result, width: this.naturalWidth, height: this.naturalHeight });
+					fileDisplayAreaBefore.appendChild(img);
+				} else if (afterOrBefore === "after") {
+					imgsAfter.push({ src: reader.result, width: this.naturalWidth, height: this.naturalHeight });
+					fileDisplayAreaAfter.appendChild(img);
+				}
+			};
 		};
 
+		// console.log(file);
 		reader.readAsDataURL(file);
 	} else {
 		if (afterOrBefore === "before") {
@@ -280,28 +285,58 @@ function printSome() {
 
 	let nextPage = false;
 	if (imgsBefore.length !== 0 && imgsAfter.length !== 0) {
+		// if height > width  - retrato
+		// if width > height - paisagem
+
 		addNewPage();
-		finalY = initialYPage - 8;
-		
+		finalY = initialYPage;
+
 		doc.setFontSize(11);
 		doc.setFont(undefined, "bold");
-		doc.text("Fotos de antes:", 14, finalY + 5);
+		doc.text("Fotos de antes:", 14, finalY);
+
+		let gap = 5;
 		imgsBefore.forEach((item, index) => {
-			doc.addImage(item, "JPEG", 30, finalY + 10 + (index * 54), 140, 50);
+			if (imgsBefore.length > 2 && index === 2) {
+				addNewPage();
+				gap = 0;
+			}
+			doc.addImage(
+				item.src,
+				"JPEG",
+				14,
+				finalY + gap,
+				item.width > item.height ? 140 : 80,
+				item.height > item.width ? 100 : 60
+			);
+			gap += item.height > item.width ? 105 : 65;
 		});
 
-		if (imgsBefore.length > 3 || ((imgsAfter.length + imgsBefore.length) > 4)) {
-			nextPage = true;
-			addNewPage();
+		if (imgsBefore.length + imgsAfter.length === 2) {
+			finalY = finalY + gap;
 		} else {
-			finalY = finalY + (imgsBefore.length * 52) + 15;
+			addNewPage();
 		}
 
 		doc.setFont(undefined, "bold");
 		doc.setFontSize(11);
 		doc.text("Fotos de depois:", 14, finalY + 2);
+
+		let gap2 = 7;
 		imgsAfter.forEach((item, index) => {
-			doc.addImage(item, "JPEG", 30, finalY + 6 + (index * 54), 140, 50);
+			if (imgsAfter.length > 2 && index === 2) {
+				addNewPage();
+				gap2 = 0;
+			}
+			doc.addImage(
+				item.src,
+				"JPEG",
+				14,
+				finalY + gap2,
+				item.width > item.height ? 140 : 80,
+				item.height > item.width ? 100 : 60
+			);
+			gap2 += item.height > item.width ? 105 : 65;
 		});
 
 		addNewPage();
