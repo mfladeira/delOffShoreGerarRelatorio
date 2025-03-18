@@ -1,3 +1,8 @@
+<?php
+require_once 'includes/database.php';
+require_once 'includes/authenticate.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,13 +11,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DelOffshore Caldeiraria</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="./mainMobile.js"></script>
-    <link rel="stylesheet" href="./styleMobile.css">
+    <script src="./generatePDF.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap");
+
+        body {
+            font-family: "Roboto", sans-serif !important;
+        }
+
+        .logo {
+            width: 50%;
+        }
+    </style>
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <?php
+                    $usuario_classe = $_SESSION['usuario_classe'];
+                    if ($usuario_classe == 'administrador') {
+                        echo '<li class="nav-item"><a class="nav-link" href="adicionar_remover_colaborador.php">Adicionar/Remover colaboradores</a></li>';
+                    }
+                    ?>
+                </ul>
+            </div>
+        </div>
+    </nav>
     <main class="bg-light">
         <div class="container" style="max-width: 700px; padding-top: 30px;">
             <div class="row">
@@ -270,7 +299,20 @@
                     <div class="col">
                         <label for="teamNames" class="form-label fw-bold">Selecione os nomes da equipe</label>
                         <select class="form-select" id="teamNames" onchange="updateTeamNames(event)">
-                            <option value="Alailson da Silva Pereira" selected>Alailson da Silva Pereira</option>
+                            <?php
+                            $sql = "SELECT id, nome FROM colaboradores";
+                            $result = mysqli_query($conn, $sql);
+
+                            // Verificando se há resultados
+                            if (mysqli_num_rows($result) > 0) {
+                                // Iterando sobre os resultados e criando itens na lista
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    echo "<option value='$row[nome]'>$row[nome]</option>";
+                                }
+                            }
+                            ?>
+                        </select>
+                        <!-- <option value="Alailson da Silva Pereira" selected>Alailson da Silva Pereira</option>
                             <option value="Adriana de Jesus Oliveira">Adriana de Jesus Oliveira</option>
                             <option value="Adriano Camilo de Barcelos">Adriano Camilo de Barcelos</option>
                             <option value="Alexsandro Machado da Silva">Alexsandro Machado da Silva</option>
@@ -328,9 +370,7 @@
                             <option value="Wagner de Passos dos Santos">Wagner de Passos dos Santos</option>
                             <option value="Wadson Santos Oliveira">Wadson Santos Oliveira</option>
                             <option value="Wellington Gomes Ernestino">Wellington Gomes Ernestino</option>
-                            <option value="Wuilglam Lima De Carvalho Barbosa">Wuilglam Lima De Carvalho Barbosa</option>
-
-                        </select>
+                            <option value="Wuilglam Lima De Carvalho Barbosa">Wuilglam Lima De Carvalho Barbosa</option> -->
                     </div>
                 </div>
 
@@ -409,5 +449,6 @@
         </div>
     </main>
 </body>
+
 
 </html>
