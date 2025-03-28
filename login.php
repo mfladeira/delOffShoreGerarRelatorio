@@ -1,11 +1,3 @@
-<?php
-session_start();
-if (isset($_SESSION['usuario'])) {
-    header('Location: relatorio2.php');
-    exit();
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,6 +6,12 @@ if (isset($_SESSION['usuario'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        let usuario = localStorage.getItem('usuario');
+        if (usuario) {
+            window.location.href = 'relatorio.php';
+        }
+    </script>
 </head>
 
 <body class="d-flex justify-content-center align-items-center vh-100 bg-light">

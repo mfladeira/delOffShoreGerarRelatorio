@@ -1,6 +1,4 @@
 <?php
-session_start();
-
 require_once 'includes/database.php';
 
 // Captura os dados do formulário
@@ -15,11 +13,13 @@ $result = mysqli_query($conn, $sql);
 if (mysqli_num_rows($result) > 0) {
   $row = mysqli_fetch_assoc($result);
 
-
-  $_SESSION['usuario_classe'] = $row['classe'];
-  $_SESSION['usuario'] = $usuario;
-
-  header("Location: relatorio2.php");
+  echo "
+    <script>
+      localStorage.setItem('usuario', '$usuario');
+      localStorage.setItem('classe', '{$row['classe']}');
+      window.location.href = 'relatorio.php';
+    </script>
+  ";
 } else {
   echo "<script>alert('Usuário ou senha incorretos!'); window.location.href='login.php';</script>";
 }

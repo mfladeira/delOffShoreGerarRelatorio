@@ -1,6 +1,5 @@
 <?php
-require_once 'includes/database.php';
-require_once 'includes/authenticate.php';
+    require_once 'includes/database.php';
 ?>
 
 <!DOCTYPE html>
@@ -25,21 +24,41 @@ require_once 'includes/authenticate.php';
             width: 50%;
         }
     </style>
+    <script>
+        let usuario = localStorage.getItem('usuario');
+
+        if (!usuario) {
+            window.location.href = 'login.php';
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let usuarioClasse = localStorage.getItem('classe');
+
+            if (usuarioClasse === 'administrador' && usuario === 'deloffshore') {
+                let navItem = document.createElement('li');
+                navItem.classList.add('nav-item');
+
+                let navLink = document.createElement('a');
+                navLink.classList.add('nav-link');
+                navLink.href = 'adicionar_remover_colaborador.php';
+                navLink.textContent = 'Adicionar/Remover colaboradores';
+
+                navItem.appendChild(navLink);
+
+                // Adiciona o item ao menu
+                document.getElementById('navbar-links').appendChild(navItem);
+            }
+        });
+    </script>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-light bg-light">
         <div class="container">
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <?php
-                    $usuario_classe = $_SESSION['usuario_classe'];
-                    if ($usuario_classe == 'administrador') {
-                        echo '<li class="nav-item"><a class="nav-link" href="adicionar_remover_colaborador.php">Adicionar/Remover colaboradores</a></li>';
-                    }
-                    ?>
-                </ul>
-            </div>
+            <ul class="navbar-nav" id="navbar-links" style="width: 100%">
+                <li onclick="localStorage.clear();window.location.href = 'login.php';" style="text-align: end">Sair</li>
+            </ul>
         </div>
     </nav>
     <main class="bg-light">
@@ -299,6 +318,7 @@ require_once 'includes/authenticate.php';
                     <div class="col">
                         <label for="teamNames" class="form-label fw-bold">Selecione os nomes da equipe</label>
                         <select class="form-select" id="teamNames" onchange="updateTeamNames(event)">
+                            <option value="" disabled selected>Selecione um colaborador</option>
                             <?php
                             $sql = "SELECT id, nome FROM colaboradores";
                             $result = mysqli_query($conn, $sql);
@@ -312,65 +332,7 @@ require_once 'includes/authenticate.php';
                             }
                             ?>
                         </select>
-                        <!-- <option value="Alailson da Silva Pereira" selected>Alailson da Silva Pereira</option>
-                            <option value="Adriana de Jesus Oliveira">Adriana de Jesus Oliveira</option>
-                            <option value="Adriano Camilo de Barcelos">Adriano Camilo de Barcelos</option>
-                            <option value="Alexsandro Machado da Silva">Alexsandro Machado da Silva</option>
-                            <option value="Aliston das Neves Silva">Aliston das Neves Silva</option>
-                            <option value="Anderson Carlos Ferreira de Sousa">Anderson Carlos Ferreira de Sousa</option>
-                            <option value="André Luiz de Sousa Ferreira">André Luiz de Sousa Ferreira</option>
-                            <option value="André Oliveira dos Santos">André Oliveira dos Santos</option>
-                            <option value="Andrea Sales de Oliveira">Andrea Sales de Oliveira</option>
-                            <option value="Antônio Carlos Pinheiro de Almeida">Antônio Carlos Pinheiro de Almeida
-                            </option>
-                            <option value="Carlos Artur Braga de Barcelos">Carlos Artur Braga de Barcelos</option>
-                            <option value="Cláudio dos Santos Silva">Cláudio dos Santos Silva</option>
-                            <option value="Cleber Barbosa dos Santos">Cleber Barbosa dos Santos</option>
-                            <option value="Daniel da Silva Santos">Daniel da Silva Santos</option>
-                            <option value="Dayvison Soares Jordão">Dayvison Soares Jordão</option>
-                            <option value="Dárya Rodrigues Cruz da Hora">Dárya Rodrigues Cruz da Hora</option>
-                            <option value="Dhonatan dos Santos Sant'Ana">Dhonatan dos Santos Sant'Ana</option>
-                            <option value="Everaldo Cruz da Hora">Everaldo Cruz da Hora</option>
-                            <option value="Ewerson Pablo dos Santos Gomes">Ewerson Pablo dos Santos Gomes</option>
-                            <option value="Edimar da Cruz da Hora">Edimar da Cruz da Hora</option>
-                            <option value="Felippe Agustin Azeredo Gongora">Felippe Agustin Azeredo Gongora</option>
-                            <option value="Fábio Santana da Silva">Fábio Santana da Silva</option>
-                            <option value="Francisco Rosnemberg Soares de Santana">Francisco Rosnemberg Soares de
-                                Santana</option>
-                            <option value="Guilherme viana Assunção">Guilherme Viana Assunção</option>
-                            <option value="Gilmar Francisco Soares">Gilmar Francisco Soares</option>
-                            <option value="Gleybson Roberto de França Velazquez">Gleybson Roberto de França Velazquez</option>
-                            <option value="Helio Jorge Cerqueira Cardoso">Helio Jorge Cerqueira Cardoso</option>
-                            <option value="Henry Castilho Barcelos">Henry Castilho Barcelos</option>
-                            <option value="Josivaldo Nunes">Josivaldo Nunes</option>
-                            <option value="Josué Fontes Couto">Josué Fontes Couto</option>
-                            <option value="José Anderson da Silva">José Anderson da Silva</option>
-                            <option value="Jefferson da Silva Cordeiro">Jefferson da Silva Cordeiro </option>
-                            <option value="Josivaldo Nunes">Josivaldo Nunes</option>
-                            <option value="Jonas de Oliveira Pessanha">Jonas de Oliveira Pessanha</option>
-                            <option value="Lázaro da Silva Caldeira">Lázaro da Silva Caldeira</option>
-                            <option value="Lucas Rocha Fonseca Sanglard">Lucas Rocha Fonseca Sanglard</option>
-                            <option value="Marcos Pinheiro Ribeiro">Marcos Pinheiro Ribeiro</option>
-                            <option value="Marcos Vinícios Ribeiro dos Santos">Marcos Vinícios Ribeiro dos Santos</option>
-                            <option value="Marcus Vinícius Silva Almeida">Marcus Vinícius Silva Almeida</option>
-                            <option value="Marilson Xavier de Souza">Marilson Xavier de Souza</option>
-                            <option value="Marcio Augusto Batista dos Santos">Marcio Augusto Batista dos Santos</option>
-                            <option value="Mário Santana Gonçalves">Mário Santana Gonçalves</option>
-                            <option value="Maurício Barcelos Gomes">Maurício Barcelos Gomes</option>
-                            <option value="Michelle Ramalho da Conceição Albuquerque">Michelle Ramalho da Conceição
-                                Albuquerque</option>
-                            <option value="Odazizio Conceição dos Santos">Odazizio Conceição dos Santos</option>
-                            <option value="Ormindo Amorim Filho">Ormindo Amorim Filho</option>
-                            <option value="Paulo Sergio Queiroz Cagid">Paulo Sergio Queiroz Cagid</option>
-                            <option value="Rafael Carvalho Gomes">Rafael Carvalho Gomes</option>
-                            <option value="Ramon Francisco Teixeira">Ramon Francisco Teixeira</option>
-                            <option value="Renato da Silva Vitorino">Renato da Silva Vitorino</option>
-                            <option value="Rodnei Pereira da fonseca">Rodnei Pereira da Fonseca</option>
-                            <option value="Valdenir Junior Silva França">Valdenir Junior Silva França</option>
-                            <option value="Wagner de Passos dos Santos">Wagner de Passos dos Santos</option>
-                            <option value="Wadson Santos Oliveira">Wadson Santos Oliveira</option>
-                            <option value="Wellington Gomes Ernestino">Wellington Gomes Ernestino</option>
-                            <option value="Wuilglam Lima De Carvalho Barbosa">Wuilglam Lima De Carvalho Barbosa</option> -->
+
                     </div>
                 </div>
 
@@ -449,6 +411,5 @@ require_once 'includes/authenticate.php';
         </div>
     </main>
 </body>
-
 
 </html>
