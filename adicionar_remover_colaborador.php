@@ -35,7 +35,7 @@
                     <h3 class="mt-3">Lista de Colaboradores</h3>
                     <ul id="listaColaboradores" class="list-group list-group-flush">
                         <?php
-                        $sql = "SELECT id, nome FROM colaboradores";
+                        $sql = "SELECT id, nome FROM colaboradores ORDER BY nome";
                         $result = mysqli_query($conn, $sql);
 
                         // Verificando se há resultados

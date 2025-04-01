@@ -35,9 +35,10 @@
         document.addEventListener('DOMContentLoaded', function () {
             let usuarioClasse = localStorage.getItem('classe');
 
-            if (usuarioClasse === 'administrador' && usuario === 'deloffshore') {
+            if (usuarioClasse === 'administrador' ) {
+            // if (usuarioClasse === 'administrador' && usuario === 'deloffshore') {
                 let navItem = document.createElement('li');
-                navItem.classList.add('nav-item');
+                navItem.classList.add('nav-item', 'd-inline-block');
 
                 let navLink = document.createElement('a');
                 navLink.classList.add('nav-link');
@@ -54,10 +55,10 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-light bg-light pt-3">
         <div class="container">
-            <ul class="navbar-nav" id="navbar-links" style="width: 100%">
-                <li onclick="localStorage.clear();window.location.href = 'login.php';" style="text-align: end">Sair</li>
+            <ul id="navbar-links" class="w-100 d-flex justify-content-between">
+                <li onclick="localStorage.clear();window.location.href = 'login.php';" class="d-inline-block">Sair</li>
             </ul>
         </div>
     </nav>
@@ -320,7 +321,7 @@
                         <select class="form-select" id="teamNames" onchange="updateTeamNames(event)">
                             <option value="" disabled selected>Selecione um colaborador</option>
                             <?php
-                            $sql = "SELECT id, nome FROM colaboradores";
+                            $sql = "SELECT id, nome FROM colaboradores ORDER BY nome";
                             $result = mysqli_query($conn, $sql);
 
                             // Verificando se há resultados
