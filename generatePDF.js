@@ -112,8 +112,15 @@ function addNewPage() {
 	doc.setFontSize(9);
 	doc.text("CNPJ: 34.050.439/0001-40", 70, 30);
 	doc.text("RUA ITACOLOMI 247-MACAÉ-RJ", 70, 37);
-	doc.addImage("./assets/logo.jpg", "JPEG", 10, 13, 45, 25);
-	doc.addImage("./assets/iso9001.png", "JPEG", 160, 18, 24, 22);
+
+	const logo = new Image();
+	logo.src = "./assets/logo.jpg"
+	doc.addImage(logo, "JPEG", 10, 13, 45, 25);
+
+	const iso = new Image();
+	iso.src = './assets/iso9001.jpg'
+	doc.addImage(iso, "JPEG", 160, 18, 24, 22);
+
 	doc.rect(13, 44, 180, 0.1, "F"); // Line
 
 	addFooter(doc);
@@ -149,8 +156,15 @@ function printSome() {
 	doc.setFontSize(9);
 	doc.text("CNPJ: 34.050.439/0001-40", 70, 30);
 	doc.text("RUA ITACOLOMI 247-MACAÉ-RJ", 70, 37);
-	doc.addImage("./assets/logo.jpg", "JPEG", 10, 13, 45, 25);
-	doc.addImage("./assets/iso9001.png", "JPEG", 160, 18, 24, 22);
+
+	const logo = new Image();
+	logo.src = "./assets/logo.jpg"
+	doc.addImage(logo, "JPEG", 10, 13, 45, 25);
+
+	const iso = new Image();
+	iso.src = './assets/iso9001.jpg'
+	doc.addImage(iso, "JPEG", 160, 18, 24, 22);
+
 	addFooter(doc);
 	doc.rect(13, 44, 180, 0.1, "F"); // Line
 
@@ -385,7 +399,23 @@ function printSome() {
 
 	doc.text(nomeResponsavelEmbarcacao ?? "", 85, finalY + 30);
 
-	doc.save(`Relatório${Math.ceil(Math.random() * 10000000)}.pdf`);
+	// Convert to Blob
+	let pdfArrayBuffer = doc.output('blob');
+	let pdfBlob = new Blob([pdfArrayBuffer], { type: "application/pdf" });
 
-	location.reload();
+	const formData = new FormData();
+	formData.append("pdf", pdfBlob);
+
+	// Send to PHP via Fetch API
+	fetch("save_pdf.php", {
+			method: "POST",
+			body: formData
+	})
+	.then(response => response.json())
+	.then(data => {
+		doc.save(data.nomeArquivo);
+		location.reload();
+	})
+	.catch(error => console.error("Error:", error));
+
 }

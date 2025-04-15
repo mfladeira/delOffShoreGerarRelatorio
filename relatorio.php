@@ -9,8 +9,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DelOffshore Caldeiraria</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="./generatePDF.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.0/jspdf.umd.min.js"></script>
+    <script src="./generatePDF.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
@@ -366,7 +366,7 @@
                     <div class="col">
                         <label for="fileInput" class="form-label fw-bold">Selecione as fotos de antes</label>
                         <br>
-                        <input class="w-100" ref='file' id="fileInput" type="file"
+                        <input accept="image/jpeg" class="w-100" ref='file' id="fileInput" type="file"
                             onchange="fileSelectedHandler(event, 'before')" />
                     </div>
                 </div>
@@ -383,7 +383,7 @@
                     <div class="col">
                         <label for="fileInput2" class="form-label fw-bold">Selecione as fotos de depois</label>
                         <br>
-                        <input class="w-100" ref='file' id="fileInput2" type="file"
+                        <input accept="image/jpeg" class="w-100" ref='file' id="fileInput2" type="file"
                             onchange="fileSelectedHandler(event, 'after')" />
                     </div>
                 </div>
