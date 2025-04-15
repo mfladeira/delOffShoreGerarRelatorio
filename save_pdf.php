@@ -9,8 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["pdf"]) && isset($_FI
         mkdir($uploadDir, 0755, true);
     }
 
-    $ultimoRelatorio = pegaUltimoRelatorio($conn);
-    $novoId = $ultimoRelatorio['id'] + 1;
+    $novoId = $_POST["ultimoRelatorio"] + 1;
     $nomeArquivo = "Relatorio{$novoId}";
     $caminhoArquivo = $uploadDir . "Relatorio{$novoId}.pdf";
 
@@ -38,19 +37,4 @@ function salvarRelatorioBanco($conn, $nomeArquivo, $caminhoArquivo)
         : "Erro ao salvar relatório.";
     $stmt->close();
     return $mensagem;
-}
-
-function pegaUltimoRelatorio($conn)
-{
-    $sql = "SELECT * FROM arquivos_pdf ORDER BY id DESC LIMIT 1";
-    $result = mysqli_query($conn, $sql);
-
-    if (mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
-        return $row;
-    } else {
-        return [
-            'id' => 0
-        ];
-    }
 }

@@ -127,7 +127,7 @@ function addNewPage() {
 	finalY = initialYPage;
 }
 
-function printSome() {
+async function printSome() {
 	const logisticaPessoal = document.getElementById("logisticaPessoal").checked;
 	const logisticaMaterial = document.getElementById("logisticaMaterial").checked;
 	const nomeCliente = document.getElementById("nomeCliente").value;
@@ -399,23 +399,33 @@ function printSome() {
 
 	doc.text(nomeResponsavelEmbarcacao ?? "", 85, finalY + 30);
 
-	// Convert to Blob
-	let pdfArrayBuffer = doc.output('blob');
-	let pdfBlob = new Blob([pdfArrayBuffer], { type: "application/pdf" });
+	try {
+		const response = await fetch("get_ultimo_relatorio.php");
+		const ultimoRelatorio = await response.json();
 
-	const formData = new FormData();
-	formData.append("pdf", pdfBlob);
+		if (ultimoRelatorio) {
+			doc.setFontSize(9);
+			doc.setFont(undefined, "normal");
+			doc.text(`N° ${ultimoRelatorio.id}`, 180, 8); // Adiciona numero no relatorio
 
-	// Send to PHP via Fetch API
-	fetch("save_pdf.php", {
-			method: "POST",
-			body: formData
-	})
-	.then(response => response.json())
-	.then(data => {
-		doc.save(data.nomeArquivo);
-		location.reload();
-	})
-	.catch(error => console.error("Error:", error));
+			let pdfArrayBuffer = doc.output('blob');
+			let pdfBlob = new Blob([pdfArrayBuffer], { type: "application/pdf" });
 
+			const formData = new FormData();
+			formData.append("pdf", pdfBlob);
+			formData.append("ultimoRelatorio", ultimoRelatorio.id);
+
+			const savePdf = await fetch("save_pdf.php", {
+				method: "POST",
+				body: formData
+			})
+
+			const savePdfJson = await savePdf.json();
+			console.log(savePdfJson)
+			doc.save(savePdfJson.nomeArquivo);
+			location.reload();
+		}
+	} catch (error) {
+		console.error("Error:", error)
+	}
 }
