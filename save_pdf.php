@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["pdf"]) && isset($_FI
         mkdir($uploadDir, 0755, true);
     }
 
-    $novoId = $_POST["ultimoRelatorio"] + 1;
+    $novoId = $_POST["ultimoRelatorio"];
     $nomeArquivo = "Relatorio{$novoId}";
     $caminhoArquivo = $uploadDir . "Relatorio{$novoId}.pdf";
 

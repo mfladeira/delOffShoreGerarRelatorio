@@ -404,16 +404,17 @@ async function printSome() {
 		const ultimoRelatorio = await response.json();
 
 		if (ultimoRelatorio) {
+			const numeroRelatorio = +ultimoRelatorio.id + 1;
 			doc.setFontSize(9);
 			doc.setFont(undefined, "normal");
-			doc.text(`N° ${ultimoRelatorio.id}`, 180, 8); // Adiciona numero no relatorio
+			doc.text(`N° ${numeroRelatorio}`, 180, 8); // Adiciona numero no relatorio
 
 			let pdfArrayBuffer = doc.output('blob');
 			let pdfBlob = new Blob([pdfArrayBuffer], { type: "application/pdf" });
 
 			const formData = new FormData();
 			formData.append("pdf", pdfBlob);
-			formData.append("ultimoRelatorio", ultimoRelatorio.id);
+			formData.append("ultimoRelatorio", numeroRelatorio);
 
 			const savePdf = await fetch("save_pdf.php", {
 				method: "POST",

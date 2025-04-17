@@ -35,20 +35,28 @@
         document.addEventListener('DOMContentLoaded', function () {
             let usuarioClasse = localStorage.getItem('classe');
 
-            if (usuarioClasse === 'administrador' ) {
-            // if (usuarioClasse === 'administrador' && usuario === 'deloffshore') {
+            if (usuarioClasse === 'administrador' && usuario === 'deloffshore') {
+                // Criação link adicionar remover
                 let navItem = document.createElement('li');
                 navItem.classList.add('nav-item', 'd-inline-block');
-
                 let navLink = document.createElement('a');
                 navLink.classList.add('nav-link');
                 navLink.href = 'adicionar_remover_colaborador.php';
                 navLink.textContent = 'Adicionar/Remover colaboradores';
-
                 navItem.appendChild(navLink);
+
+                // Criação link visualizar relatorio
+                let navItem2 = document.createElement('li');
+                navItem2.classList.add('nav-item', 'd-inline-block');
+                let navLink2 = document.createElement('a');
+                navLink2.classList.add('nav-link');
+                navLink2.href = 'listar_arquivos.php';
+                navLink2.textContent = 'Listar relatórios';
+                navItem2.appendChild(navLink2);
 
                 // Adiciona o item ao menu
                 document.getElementById('navbar-links').appendChild(navItem);
+                document.getElementById('navbar-links').appendChild(navItem2);
             }
         });
     </script>
