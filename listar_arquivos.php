@@ -36,6 +36,9 @@
 
                           if (is_dir($diretorio)) {
                               $itens = scandir($diretorio);
+
+                              sort($itens, SORT_NATURAL | SORT_FLAG_CASE);
+
                               foreach ($itens as $item) {
                                   if ($item !== '.' && $item !== '..' && is_file($diretorio . $item)) {
                                       echo "<li class='list-group-item'>
