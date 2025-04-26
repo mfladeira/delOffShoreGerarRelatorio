@@ -1,11 +1,11 @@
 const { jsPDF } = window.jspdf;
 
 let teamProfissions = {
-	Soldador: 0,
-	Caldeireiro: 0,
-	Pintor: 0,
-	Ajudante: 0,
-	Supervisor: 0,
+	"Soldador": 0,
+	"Caldeireiro": 0,
+	"Pintor": 0,
+	"Ajudante": 0,
+	"Supervisor": 0,
 	"Montador De Andaime": 0,
 	"Soldador Irata": 0,
 	"Ajudante Irata": 0,
@@ -19,28 +19,25 @@ let imgsAfter = [];
 let doc = new jsPDF();
 
 const finalLimitY = 265;
-const initialYPage = 52;
+const initialYPage = 48;
 const pageWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
 
 let finalY = 0;
 
+// Código para adicionar loading no botão
+const btn = document.getElementById("buttonSend");
+const text = document.getElementById("btnText");
+const spinner = document.getElementById("btnSpinner");
+function toggleLoading(isLoading) {
+	text.textContent = isLoading ? "Carregando..." : "Concluído!";
+	spinner.classList.toggle("d-none", !isLoading);
+	btn.disabled = isLoading;
+}
+
 function updateLogisticaOrPessoal(event, type) {
 	event.preventDefault();
-	if (type === "logisticaPessoal") {
-		if (event.srcElement.checked) {
-			document.getElementById("teveLogisticaPessoal").textContent = "SIM";
-		} else {
-			document.getElementById("teveLogisticaPessoal").textContent = "NÃO";
-		}
-	}
-
-	if (type === "logisticaMaterial") {
-		if (event.srcElement.checked) {
-			document.getElementById("teveLogisticaMaterial").textContent = "SIM";
-		} else {
-			document.getElementById("teveLogisticaMaterial").textContent = "NÃO";
-		}
-	}
+	const elementId = type === "logisticaPessoal" ? "teveLogisticaPessoal" : "teveLogisticaMaterial";
+	document.getElementById(elementId).textContent = event.srcElement.checked ? "SIM" : "NÃO";
 }
 
 function updateTeamProfissions(e, typeOfProfission, numberToAdd) {
@@ -58,37 +55,30 @@ function updateTeamNames(e) {
 	ulTeam.appendChild(li);
 }
 
-function fileSelectedHandler(event, afterOrBefore) {
+async function fileSelectedHandler(event, afterOrBefore) {
 	let file = event.target.files[0];
 	const imageType = /image.*/;
 
-	if (file.type.match(imageType)) {
-		var reader = new FileReader();
+	if (!file.type.match(imageType)) {
+		const area = afterOrBefore === "before" ? fileDisplayAreaBefore : fileDisplayAreaAfter;
+		area.innerHTML = "Só aceita imagens";
+		return;
+	}
 
-		reader.onload = function (e) {
-			var img = new Image();
-			img.src = reader.result;
-			img.style = "width:100%; margin-top: 15px; max-height: 22rem;";
+	try {
+		const dataURL = await readFileAsDataURL(file);
+		const img = await loadImage(dataURL);
+		img.style = "width:100%; margin-top: 15px; max-height: 22rem;";
 
-			img.onload = function () {
-				if (afterOrBefore === "before") {
-					imgsBefore.push({ src: reader.result, width: this.naturalWidth, height: this.naturalHeight });
-					fileDisplayAreaBefore.appendChild(img);
-				} else if (afterOrBefore === "after") {
-					imgsAfter.push({ src: reader.result, width: this.naturalWidth, height: this.naturalHeight });
-					fileDisplayAreaAfter.appendChild(img);
-				}
-			};
-		};
-
-		// console.log(file);
-		reader.readAsDataURL(file);
-	} else {
 		if (afterOrBefore === "before") {
-			fileDisplayAreaBefore.innerHTML = "Só aceita images";
+			imgsBefore.push({ src: dataURL, width: img.naturalWidth, height: img.naturalHeight });
+			fileDisplayAreaBefore.appendChild(img);
 		} else {
-			fileDisplayAreaAfter.innerHTML = "Só aceita images";
+			imgsAfter.push({ src: dataURL, width: img.naturalWidth, height: img.naturalHeight });
+			fileDisplayAreaAfter.appendChild(img);
 		}
+	} catch (error) {
+		console.error("Erro ao carregar imagem:", error);
 	}
 }
 
@@ -104,7 +94,7 @@ function addFooter(doc) {
 	doc.text("(22) 30513548 / (22) 998884700 Site. www.deloffshore.com", pageWidth / 2, 285, { align: "center" });
 }
 
-function addNewPage() {
+async function addNewPage() {
 	doc.addPage();
 	doc.setFont(undefined, "bold");
 	doc.setFontSize(13);
@@ -113,12 +103,10 @@ function addNewPage() {
 	doc.text("CNPJ: 34.050.439/0001-40", 70, 30);
 	doc.text("RUA ITACOLOMI 247-MACAÉ-RJ", 70, 37);
 
-	const logo = new Image();
-	logo.src = "./assets/logo.jpg"
+	const logo = await loadImage("./assets/logo.jpg");
 	doc.addImage(logo, "JPEG", 10, 13, 45, 25);
 
-	const iso = new Image();
-	iso.src = './assets/iso9001.jpg'
+	const iso = await loadImage("./assets/iso9001.jpg");
 	doc.addImage(iso, "JPEG", 160, 18, 24, 22);
 
 	doc.rect(13, 44, 180, 0.1, "F"); // Line
@@ -127,7 +115,30 @@ function addNewPage() {
 	finalY = initialYPage;
 }
 
-async function printSome() {
+function readFileAsDataURL(file) {
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => resolve(reader.result);
+		reader.onerror = reject;
+		reader.readAsDataURL(file);
+	});
+}
+
+function loadImage(src) {
+	return new Promise((resolve, reject) => {
+		const img = new Image();
+		img.onload = () => resolve(img);
+		img.onerror = reject;
+		img.src = src;
+	});
+}
+
+
+async function gerarPdf() {
+	//Resetar estado
+	doc = new jsPDF();
+	finalY = 0;
+
 	const logisticaPessoal = document.getElementById("logisticaPessoal").checked;
 	const logisticaMaterial = document.getElementById("logisticaMaterial").checked;
 	const nomeCliente = document.getElementById("nomeCliente").value;
@@ -150,6 +161,7 @@ async function printSome() {
 	const nomeResponsavelEmbarcacao = document.getElementById("nomeResponsavelEmbarcacao").value;
 	const observacao = document.getElementById("observacao").value;
 
+	// Adiciona Cabeçalho
 	doc.setFont(undefined, "bold");
 	doc.setFontSize(13);
 	doc.text("SERVIÇO DE CALDEIRARIA", 70, 23);
@@ -157,20 +169,17 @@ async function printSome() {
 	doc.text("CNPJ: 34.050.439/0001-40", 70, 30);
 	doc.text("RUA ITACOLOMI 247-MACAÉ-RJ", 70, 37);
 
-	const logo = new Image();
-	logo.src = "./assets/logo.jpg"
+	const logo = await loadImage("./assets/logo.jpg");
 	doc.addImage(logo, "JPEG", 10, 13, 45, 25);
 
-	const iso = new Image();
-	iso.src = './assets/iso9001.jpg'
+	const iso = await loadImage("./assets/iso9001.jpg");
 	doc.addImage(iso, "JPEG", 160, 18, 24, 22);
 
+	// Adiciona Rodapé
 	addFooter(doc);
+
 	doc.rect(13, 44, 180, 0.1, "F"); // Line
 
-	// Rodapé
-
-	// FONT BOLD
 	doc.setFont(undefined, "bold");
 	doc.setFillColor(222, 226, 230);
 	doc.setFontSize(11);
@@ -185,17 +194,13 @@ async function printSome() {
 	doc.text("Data término:", 130, 94);
 	doc.text("Hora início:", 14, 101);
 	doc.text("Hora Término:", 130, 101);
-
 	doc.text("Logística de material:", 14, 108);
 	doc.text("Logística de pessoal:", 130, 108);
-
 	doc.text("Material utilizado:", 14, 115);
-
-	// FONT NORMAl
 	doc.setFont(undefined, "normal");
-	doc.text("Del Offshore", 58, 52); // prestadora serviço
-	doc.text("contato@deloffshore.com", 27, 59); // email
-	doc.text("(22)998469474 / (22)998884700", 135, 59); // telefone
+	doc.text("Del Offshore", 58, 52);
+	doc.text("contato@deloffshore.com", 27, 59);
+	doc.text("(22)998469474 / (22)998884700", 135, 59);
 	doc.text(nomeCliente, 30, 66);
 	doc.text(nomeEmbarcacao, 57, 73);
 	doc.text(emailResponsavelEmbarcacao, 86, 80);
@@ -222,12 +227,10 @@ async function printSome() {
 	finalY = 118 + materialHeight;
 
 	//---------------------------------------------------------------------------------------
-	// FONT BOLD
 	doc.setFont(undefined, "bold");
 	doc.text("Ordem do serviço:", 14, finalY + 5);
 	doc.text("Equipe:", 14, finalY + 12);
 
-	// FONT NORMAl
 	doc.setFont(undefined, "normal");
 	doc.text(ordemDoServico, 49, finalY + 5);
 
@@ -278,11 +281,9 @@ async function printSome() {
 	finalY = finalY + teamNamesHeight;
 	//---------------------------------------------------------------------------------------
 
-	// FONT BOLD
 	doc.setFont(undefined, "bold");
 	doc.text("Descrição do serviço:", 14, finalY + 5);
 
-	// FONT NORMAl
 	doc.setFont(undefined, "normal");
 	doc.text(description, 14, finalY + 10, {
 		align: "left",
@@ -295,83 +296,81 @@ async function printSome() {
 		lineHeightFactor: 1.3,
 		fontSize: 12,
 	}).h;
-	finalY = finalY + 10 + descriptionHeight;
+	finalY = finalY + 15 + descriptionHeight;
 
-	let nextPage = false;
-	if (imgsBefore.length !== 0 && imgsAfter.length !== 0) {
-		// if height > width  - retrato
-		// if width > height - paisagem
 
-		addNewPage();
-		finalY = initialYPage;
+	// Adição das imagens
+	// if height > width  -> retrato
+	// if width > height -> paisagem
+	const gap = 5;
 
-		doc.setFontSize(11);
-		doc.setFont(undefined, "bold");
-		doc.text("Fotos de antes:", 14, finalY);
+	function addImage(src, positionY, width, height) {
+		doc.addImage(
+			src,
+			"JPEG",
+			14,
+			positionY,
+			width,
+			height
+		);
 
-		let gap = 5;
-		imgsBefore.forEach((item, index) => {
-			if (imgsBefore.length > 2 && index === 2) {
-				addNewPage();
-				gap = 0;
-			}
-			doc.addImage(
-				item.src,
-				"JPEG",
-				14,
-				finalY + gap,
-				item.width > item.height ? 140 : 80,
-				item.height > item.width ? 100 : 60
-			);
-			gap += item.height > item.width ? 105 : 65;
-		});
-
-		if (imgsBefore.length + imgsAfter.length === 2) {
-			finalY = finalY + gap;
-		} else {
-			addNewPage();
-		}
-
-		doc.setFont(undefined, "bold");
-		doc.setFontSize(11);
-		doc.text("Fotos de depois:", 14, finalY + 2);
-
-		let gap2 = 7;
-		imgsAfter.forEach((item, index) => {
-			if (imgsAfter.length > 2 && index === 2) {
-				addNewPage();
-				gap2 = 0;
-			}
-			doc.addImage(
-				item.src,
-				"JPEG",
-				14,
-				finalY + gap2,
-				item.width > item.height ? 140 : 80,
-				item.height > item.width ? 100 : 60
-			);
-			gap2 += item.height > item.width ? 105 : 65;
-		});
-
-		addNewPage();
+		finalY = height + gap + finalY;
 	}
+
+	if (imgsBefore.length > 0) {
+		for (let index = 0; index < imgsBefore.length; index++) {
+			const item = imgsBefore[index];
+			const itemWidth = item.width > item.height ? 140 : 80;
+			const itemHeight = item.height > item.width ? 100 : 60;
+			const isFit = (itemHeight + gap + finalY) < finalLimitY;
+
+			// Se não couber, adiciona nova página
+			if (!isFit) {
+				await addNewPage();
+			}
+
+			// Se for a primeira imagem, adiciona a legenda
+			if (index === 0) {
+				doc.setFontSize(11);
+				doc.setFont(undefined, "bold");
+				doc.text(`Fotos${imgsAfter.length > 0 ? ' de antes' : ''}:`, 14, finalY);
+			}
+
+			addImage(item.src, finalY + gap, itemWidth, itemHeight);
+		}
+	}
+
+	if (imgsAfter.length > 0) {
+		for (let index = 0; index < imgsAfter.length; index++) {
+			const item = imgsAfter[index];
+			const itemWidth = item.width > item.height ? 140 : 80;
+			const itemHeight = item.height > item.width ? 100 : 60;
+			const isFit = (itemHeight + gap + finalY) < finalLimitY;
+
+			// Se não couber, adiciona nova página
+			if (!isFit) {
+				await addNewPage();
+			}
+
+			// Se for a primeira imagem, adiciona a legenda
+			if (index === 0) {
+				finalY += 4; // Adiciona gap
+				doc.setFontSize(11);
+				doc.setFont(undefined, "bold");
+				doc.text('Fotos de depois', 14, finalY);
+			}
+
+			addImage(item.src, finalY + gap, itemWidth, itemHeight);
+		}
+	}
+
+	// Página final
+	await addNewPage();
 
 	doc.setFont(undefined, "bold");
 	doc.setFontSize(11);
-
-	if (nextPage === true) {
-		finalY = initialYPage + 65;
-	}
-
-	if (finalY + 60 >= finalLimitY) {
-		addNewPage();
-	}
-
-	doc.setFontSize(11);
 	doc.text("Observação:", 14, finalY + 5);
-
 	doc.setFont(undefined, "normal");
-
 	doc.text(observacao, 14, finalY + 10, {
 		align: "left",
 		maxWidth: 180,
@@ -386,20 +385,15 @@ async function printSome() {
 
 	finalY = finalY + 5 + observationHeight;
 
-	if (finalY + 60 >= finalLimitY) {
-		addNewPage();
-		doc.setFontSize(11);
-	}
-
+	doc.setFontSize(11);
 	doc.setFont(undefined, "bold");
-
 	doc.text("Assinatura do responsável da embarcação:", 14, finalY + 15);
 	doc.text("Assinatura do responsável da equipe: ", 14, finalY + 30);
 	doc.text("Assinatura da prestadora de serviço: ", 14, finalY + 45);
-
 	doc.text(nomeResponsavelEmbarcacao ?? "", 85, finalY + 30);
 
 	try {
+		toggleLoading(true);
 		const response = await fetch("get_ultimo_relatorio.php");
 		const ultimoRelatorio = await response.json();
 
@@ -422,9 +416,8 @@ async function printSome() {
 			})
 
 			const savePdfJson = await savePdf.json();
-			console.log(savePdfJson)
 			doc.save(savePdfJson.nomeArquivo);
-			location.reload();
+			setTimeout(() => location.reload(), 1000);
 		}
 	} catch (error) {
 		console.error("Error:", error)

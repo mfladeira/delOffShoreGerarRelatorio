@@ -411,8 +411,15 @@
 
                 <div class="row justify-content-center">
                     <div class="col-6 justify-content-center d-flex">
-                        <button type="button" id="buttonSend" class="btn btn-primary mt-4 mb-4 p-2"
-                            onclick="printSome()">Gerar PDF</button>
+                        <button type="button" id="buttonSend" class="btn btn-primary mt-4 mb-4 p-2" onclick="gerarPdf()">
+                            <span id="btnText">Gerar PDF</span>
+                            <span
+                                id="btnSpinner"
+                                class="spinner-border spinner-border-sm d-none"
+                                role="status"
+                                aria-hidden="true"
+                            ></span>
+                        </button>
                     </div>
                 </div>
 
