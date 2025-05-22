@@ -94,8 +94,9 @@ function addFooter(doc) {
 	doc.text("(22) 30513548 / (22) 998884700 Site. www.deloffshore.com", pageWidth / 2, 285, { align: "center" });
 }
 
-async function addNewPage() {
+async function addNewPage(numeroRelatorio) {
 	doc.addPage();
+	addReportNumber(numeroRelatorio); // Número relatorio no topo
 	doc.setFont(undefined, "bold");
 	doc.setFontSize(13);
 	doc.text("SERVIÇO DE CALDEIRARIA", 70, 23);
@@ -133,11 +134,31 @@ function loadImage(src) {
 	});
 }
 
+function addReportNumber(numeroRelatorio) {
+	console.log(numeroRelatorio)
+
+	doc.setFontSize(9);
+	doc.setFont(undefined, "normal");
+	doc.text(`N° ${numeroRelatorio}`, 180, 8); // Adiciona numero no relatorio
+}
 
 async function gerarPdf() {
 	//Resetar estado
 	doc = new jsPDF();
 	finalY = 0;
+	let numeroRelatorio = 0;
+	let ultimoRelatorio;
+
+	try {
+		toggleLoading(true);
+		const response = await fetch("get_ultimo_relatorio.php");
+		ultimoRelatorio = await response.json();
+		if (ultimoRelatorio) {
+			numeroRelatorio = +ultimoRelatorio.id + 1;
+		}
+	} catch (error) {
+		console.error(error);
+	}
 
 	const logisticaPessoal = document.getElementById("logisticaPessoal").checked;
 	const logisticaMaterial = document.getElementById("logisticaMaterial").checked;
@@ -162,6 +183,8 @@ async function gerarPdf() {
 	const observacao = document.getElementById("observacao").value;
 
 	// Adiciona Cabeçalho
+	addReportNumber(numeroRelatorio); // Número relatorio no topo
+
 	doc.setFont(undefined, "bold");
 	doc.setFontSize(13);
 	doc.text("SERVIÇO DE CALDEIRARIA", 70, 23);
@@ -178,7 +201,7 @@ async function gerarPdf() {
 	// Adiciona Rodapé
 	addFooter(doc);
 
-	doc.rect(13, 44, 180, 0.1, "F"); // Line
+	doc.rect(13, 44, 180, 0.1, "F"); // Divider
 
 	doc.setFont(undefined, "bold");
 	doc.setFillColor(222, 226, 230);
@@ -326,7 +349,7 @@ async function gerarPdf() {
 
 			// Se não couber, adiciona nova página
 			if (!isFit) {
-				await addNewPage();
+				await addNewPage(numeroRelatorio);
 			}
 
 			// Se for a primeira imagem, adiciona a legenda
@@ -349,7 +372,7 @@ async function gerarPdf() {
 
 			// Se não couber, adiciona nova página
 			if (!isFit) {
-				await addNewPage();
+				await addNewPage(numeroRelatorio);
 			}
 
 			// Se for a primeira imagem, adiciona a legenda
@@ -365,7 +388,7 @@ async function gerarPdf() {
 	}
 
 	// Página final
-	await addNewPage();
+	await addNewPage(numeroRelatorio);
 
 	doc.setFont(undefined, "bold");
 	doc.setFontSize(11);
@@ -393,16 +416,7 @@ async function gerarPdf() {
 	doc.text(nomeResponsavelEmbarcacao ?? "", 85, finalY + 30);
 
 	try {
-		toggleLoading(true);
-		const response = await fetch("get_ultimo_relatorio.php");
-		const ultimoRelatorio = await response.json();
-
 		if (ultimoRelatorio) {
-			const numeroRelatorio = +ultimoRelatorio.id + 1;
-			doc.setFontSize(9);
-			doc.setFont(undefined, "normal");
-			doc.text(`N° ${numeroRelatorio}`, 180, 8); // Adiciona numero no relatorio
-
 			let pdfArrayBuffer = doc.output('blob');
 			let pdfBlob = new Blob([pdfArrayBuffer], { type: "application/pdf" });
 
