@@ -380,7 +380,7 @@ async function gerarPdf() {
 				finalY += 4; // Adiciona gap
 				doc.setFontSize(11);
 				doc.setFont(undefined, "bold");
-				doc.text('Fotos de depois', 14, finalY);
+				doc.text(`Fotos${imgsBefore.length > 0 ? ' de depois' : ''}:`, 14, finalY);
 			}
 
 			addImage(item.src, finalY + gap, itemWidth, itemHeight);
