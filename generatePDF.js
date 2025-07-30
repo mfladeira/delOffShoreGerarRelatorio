@@ -411,9 +411,8 @@ async function gerarPdf() {
 	doc.setFontSize(11);
 	doc.setFont(undefined, "bold");
 	doc.text("Assinatura do responsável da embarcação:", 14, finalY + 15);
-	doc.text("Assinatura do responsável da equipe: ", 14, finalY + 30);
-	doc.text("Assinatura da prestadora de serviço: ", 14, finalY + 45);
-	doc.text(nomeResponsavelEmbarcacao ?? "", 85, finalY + 30);
+	doc.text("Assinatura da prestadora de serviço: ", 14, finalY + 35);
+	doc.text(nomeResponsavelEmbarcacao ?? "", 85, finalY + 35);
 
 	try {
 		if (ultimoRelatorio) {
